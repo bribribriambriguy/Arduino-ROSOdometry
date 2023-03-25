@@ -43,7 +43,7 @@ def main():
 	
 	while not rospy.is_shutdown():
 		pubOdom()
-		rate.sleep()
+		rate.sleep() 
 	
 def leftWheelTicks(leftCount):
 		global positionLeft
@@ -57,6 +57,14 @@ def rightWheelTicks(rightCount):
 		
 def pubOdom():
 	global x, y, th, lastTime, lastLeft, lastRight, delta_left_wheel, delta_right_wheel
+	
+	if (positionLeft * ticksPerMeter) - (lastLeft * ticksPerMeter) > 10000:
+		lastLeft = 0
+		delta_left_wheel = 0
+		
+	if (positionRight * ticksPerMeter) - (lastRight * ticksPerMeter) > 10000:
+		lastRight = 0
+		delta_right_wheel = 0	
 	
 	if positionLeft != 0 and positionRight != 0 and lastLeft != 0 and lastRight != 0:
 	
@@ -86,7 +94,6 @@ def pubOdom():
 	
 	odom.twist.twist.linear.x = cycleDistance / delta
 	odom.twist.twist.angular.z = cycleAngle / delta
-	print(cycleDistance, cycleAngle)
 	
 	odom_pub.publish(odom)
 	odom_broadcaster.sendTransform(
